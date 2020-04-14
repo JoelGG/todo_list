@@ -11,46 +11,54 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.white,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Todo List"),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-
-          },
-          child: Icon(Icons.add),
-        ),
-        body: Container(
-          child: Tasks(),
-        ),
-      ),
+      home: HomeScreen(),
     );
   }
 }
 
-class TasksState extends State<Tasks> {
-  Iterable<Task> todos;
+class HomeScreenState extends State<HomeScreen> {
+  List<Task> _todos = new List();
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (BuildContext context, int i) {
-        // TODO
-      },
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Todo List"),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _addTodos(null);
+        },
+        child: Icon(Icons.add),
+      ),
+      body: Container(
+        child: ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: _todos.length,
+          itemBuilder: (BuildContext _context, int i) {
+            return(_buildRow(_todos[i]));
+          },
+        ),
+      ),
     );
   }
 
   Widget _buildRow (Task task) {
     return ListTile(
-      title: Text(task.title),
+      title: Text(task.title + "," + task.date.toString()),
     );
+  }
+
+  void _addTodos (Task t) {
+    setState(() {
+      _todos.add(new Task(date: DateTime.now(), title: "Todo " + _todos.length.toString()));
+    });
   }
 }
 
-class Tasks extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  TasksState createState() => TasksState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
 
