@@ -86,8 +86,8 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               Card(
                 child: InkWell(
-                  child: Text("Select Date"),
-                  onTap: () {showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2001), lastDate: DateTime(2222));},
+                  child: Text("Select Time"),
+                  onTap: () {showTimePicker(context: context, initialTime: TimeOfDay.now());},
                 ),
               ),
             ]
