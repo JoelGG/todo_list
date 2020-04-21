@@ -21,6 +21,7 @@ class HomeScreenState extends State<HomeScreen> {
   List<Task> _completed = new List();
   Widget page;
   int _pageIndex = 0;
+  String _pageTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,7 @@ class HomeScreenState extends State<HomeScreen> {
             },
           ),
         );
+        _pageTitle = "Todo List";
         break;
       case 1:
         page = Container (
@@ -59,6 +61,23 @@ class HomeScreenState extends State<HomeScreen> {
             },
           ),
         );
+        _pageTitle = "Completed Tasks";
+        break;
+      case 2:
+        page = Container(
+          child: ListView(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Text("Theme"),
+                  DropdownButton(items: null, onChanged: null),
+                ],
+              ),
+              
+            ],
+          ),
+        );
+        _pageTitle = "Settings";
         break;
       default:
     }
@@ -66,7 +85,7 @@ class HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Todo List"),
+        title: Text(_pageTitle),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
