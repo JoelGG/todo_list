@@ -70,7 +70,6 @@ class HomeScreenState extends State<HomeScreen> {
               Row(
                 children: <Widget>[
                   Text("Theme"),
-                  DropdownButton(items: null, onChanged: null),
                 ],
               ),
               
@@ -108,12 +107,119 @@ class HomeScreenState extends State<HomeScreen> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _addTodos(null);
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return _dataEntry();
+          }));
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.deepOrange,
       ),
       body: page,
+    );
+  }
+
+  Widget _dataEntry() {
+    final _formKey = GlobalKey<FormState>();
+    DateTime chosenDate = DateTime.now();
+    final taskController = TextEditingController();
+    final dateController = TextEditingController();
+    final timeController = TextEditingController();
+    TimeOfDay chosenTime = TimeOfDay.now();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("New todo"),
+      ),
+      body: Container(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.lightbulb_outline),
+                  labelText: 'Task',
+                ),
+                controller: taskController,
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter some text';
+                  } else {
+                    return null;
+                  }
+                
+                },
+              ),
+              Divider(),
+              InkWell(
+                onTap: () async {
+                  chosenDate = await showDatePicker(
+                    context: context, 
+                    initialDate: DateTime.now(), 
+                    firstDate: DateTime(2000), 
+                    lastDate: DateTime(2100),
+                  );
+                  dateController.text = chosenDate.year.toString() + "/" + chosenDate.month.toString() + "/" + chosenDate.day.toString();
+
+                },
+                child: IgnorePointer(
+                  child: new TextFormField(
+                    decoration: new InputDecoration(icon: Icon(Icons.date_range),labelText: 'Date'),
+                    maxLength: 10,
+                    controller: dateController,
+                    onSaved: (String val) {},
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter a date';
+                      } else {
+                        return null;
+                      }
+                    },
+                  ),
+                ),
+              ),
+              Divider(),
+              InkWell(
+                onTap: () async {
+                  chosenTime = await showTimePicker(
+                    context: context, 
+                    initialTime: TimeOfDay.now(), 
+                  );
+                  timeController.text = chosenTime.hour.toString() + ":" + (chosenTime.minute.toString().length < 2 ? "0" + chosenTime.minute.toString() : chosenTime.minute.toString());
+
+                },
+                child: IgnorePointer(
+                  child: new TextFormField(
+                    decoration: new InputDecoration(icon: Icon(Icons.access_time),labelText: 'Time'),
+                    maxLength: 10,
+                    controller: timeController,
+                    onSaved: (String val) {},
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter a time';
+                      } else {
+                        return null;
+                      }
+                    },
+                  ),
+                ),
+              ),
+              Divider(),
+              RaisedButton(
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    _addTodos(Task(title: taskController.text, date: DateTime(chosenDate.year, chosenDate.month, chosenDate.day, chosenTime.hour, chosenTime.minute)));
+                    Navigator.pop(context);
+                    taskController.clear();
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        ),
+        padding: EdgeInsets.all(30),
+      ),
     );
   }
 
@@ -161,9 +267,8 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _addTodos (Task t) {
-
     setState(() {
-      _todos.add(new Task(date: DateTime.now(), title: "Todo " + _todos.length.toString()));
+      _todos.add(t);
     });
   }
 
