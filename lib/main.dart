@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -25,6 +26,8 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool displayFloating = true;
+
     switch (_pageIndex) {
       case 0:
         page = Container(
@@ -61,6 +64,7 @@ class HomeScreenState extends State<HomeScreen> {
             },
           ),
         );
+        displayFloating = false;
         _pageTitle = "Completed Tasks";
         break;
       case 2:
@@ -76,6 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
             ],
           ),
         );
+        displayFloating = false;
         _pageTitle = "Settings";
         break;
       default:
@@ -105,7 +110,7 @@ class HomeScreenState extends State<HomeScreen> {
         currentIndex: _pageIndex,
       ),
 
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: displayFloating ? FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return _dataEntry();
@@ -113,7 +118,7 @@ class HomeScreenState extends State<HomeScreen> {
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.deepOrange,
-      ),
+      ) : null,
       body: page,
     );
   }
