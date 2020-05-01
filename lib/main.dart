@@ -330,6 +330,8 @@ class Category {
 }
 
 String addZeros(String toFormat, int intendedLength) {
+  intendedLength = intendedLength.abs();
+  
   while (toFormat.length < intendedLength) {
     toFormat = '0' + toFormat;
   }
