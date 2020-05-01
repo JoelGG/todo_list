@@ -113,7 +113,7 @@ class HomeScreenState extends State<HomeScreen> {
       floatingActionButton: displayFloating ? FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return _dataEntry();
+            return _dataEntry(null, null);
           }));
         },
         child: Icon(Icons.add),
@@ -123,13 +123,19 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _dataEntry() {
+  Widget _dataEntry(int replaceAtIndex, Task defualtTask) {
+    if (defualtTask == null) {
+      defualtTask = Task(title: "", date: DateTime.now());
+    }
+
     final _formKey = GlobalKey<FormState>();
     DateTime chosenDate = DateTime.now();
-    final taskController = TextEditingController();
-    final dateController = TextEditingController();
-    final timeController = TextEditingController();
+    final taskController = TextEditingController(text: defualtTask.title);
+    final dateController = TextEditingController(text: ((replaceAtIndex == null) ? "" : defualtTask.date.year.toString() + '/' + addZeros(defualtTask.date.month.toString(), 2) + '/' + addZeros(defualtTask.date.minute.toString(), 2)));
+    final timeController = TextEditingController(text: ((replaceAtIndex == null) ? "" : addZeros(defualtTask.date.hour.toString(), 2) + ':' + addZeros(defualtTask.date.minute.toString(), 2)));
     TimeOfDay chosenTime = TimeOfDay.now();
+
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -160,7 +166,7 @@ class HomeScreenState extends State<HomeScreen> {
                 onTap: () async {
                   chosenDate = await showDatePicker(
                     context: context, 
-                    initialDate: DateTime.now(), 
+                    initialDate: defualtTask.date, 
                     firstDate: DateTime(2000), 
                     lastDate: DateTime(2100),
                   );
@@ -188,7 +194,7 @@ class HomeScreenState extends State<HomeScreen> {
                 onTap: () async {
                   chosenTime = await showTimePicker(
                     context: context, 
-                    initialTime: TimeOfDay.now(), 
+                    initialTime: TimeOfDay(hour: defualtTask.date.hour, minute: defualtTask.date.minute), 
                   );
                   timeController.text = chosenTime.hour.toString() + ":" + (chosenTime.minute.toString().length < 2 ? "0" + chosenTime.minute.toString() : chosenTime.minute.toString());
 
@@ -213,7 +219,11 @@ class HomeScreenState extends State<HomeScreen> {
               RaisedButton(
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
-                    _addTodos(Task(title: taskController.text, date: DateTime(chosenDate.year, chosenDate.month, chosenDate.day, chosenTime.hour, chosenTime.minute)));
+                    if (replaceAtIndex != null) {
+                      _editTodos(Task(title: taskController.text, date: DateTime(chosenDate.year, chosenDate.month, chosenDate.day, chosenTime.hour, chosenTime.minute)), replaceAtIndex);
+                    } else {
+                      _addTodos(Task(title: taskController.text, date: DateTime(chosenDate.year, chosenDate.month, chosenDate.day, chosenTime.hour, chosenTime.minute)));
+                    }
                     Navigator.pop(context);
                     taskController.clear();
                   }
@@ -247,7 +257,9 @@ class HomeScreenState extends State<HomeScreen> {
               } else if (result == "Complete") {
                 _completeTodo(task);
               } else if (result == "Edit") {
-                //TODO
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return _dataEntry(_todos.indexOf(task), Task(title: task.title, date: task.date, category: task.category));
+                }));
               } else {
                 throw new ErrorDescription("Option selected not supported - give the developer an email to shout at him!");
               }
@@ -276,6 +288,12 @@ class HomeScreenState extends State<HomeScreen> {
       _todos.add(t);
     });
   }
+
+  void _editTodos (Task t, int index) {
+    setState(() {
+      _todos[index] = t;
+    });
+  } 
 
   void _removeTodo (Task t) {
     setState(() {
@@ -309,4 +327,12 @@ class Category {
   String name;
 
   Category({this.icon, this.name});
+}
+
+String addZeros(String toFormat, int intendedLength) {
+  while (toFormat.length < intendedLength) {
+    toFormat = '0' + toFormat;
+  }
+
+  return toFormat;
 }
