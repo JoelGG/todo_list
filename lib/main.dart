@@ -13,7 +13,6 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     HomeScreen _homeScreen = HomeScreen(
-      theme: Themes.blue,
       onThemeChanged: (String s) {
         setState(() {
           switch (s) {
@@ -22,6 +21,9 @@ class MyAppState extends State<MyApp> {
               break;
             case 'Light: Green' :
               _currentTheme = Themes.green;
+              break;
+            case 'Dark: Deep Black' :
+              _currentTheme = Themes.deepBlack;
               break;
             default:
           }
@@ -90,24 +92,40 @@ class HomeScreenState extends State<HomeScreen> {
         break;
       case 2:
         page = Container(
-          child: DropdownButton<String>(
-            value: themeDropdownValue,
-            icon: Icon(Icons.arrow_downward),
-            iconSize: 24,
-            elevation: 16,
-            onChanged: (String newValue) {
-              widget.onThemeChanged(newValue);
-              themeDropdownValue = newValue;
-            },
-            items: <String>['Light: Blue', 'Light: Green', 'Dark: Deep Black']
-              .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              })
-              .toList(),
+          child: Column(
+            children: <Widget>[
+              Divider(),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text("Theme",
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  )),
+                  Expanded(child:DropdownButton<String>(
+                    value: themeDropdownValue,
+                    icon: Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    onChanged: (String newValue) {
+                      widget.onThemeChanged(newValue);
+                      themeDropdownValue = newValue;
+                    },
+                    items: <String>['Light: Blue', 'Light: Green', 'Dark: Deep Black']
+                      .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      })
+                      .toList(),
+                    )),
+                ],
+              ),
+              Divider(),
+            ],
           ),
+          padding: EdgeInsets.all(24),
         );
         displayFloating = false;
         _pageTitle = "Settings";
@@ -348,10 +366,9 @@ class HomeScreenState extends State<HomeScreen> {
 }
 
 class HomeScreen extends StatefulWidget {
-  ThemeData theme;
   Function onThemeChanged;
 
-  HomeScreen({this.theme, this.onThemeChanged});
+  HomeScreen({this.onThemeChanged});
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -400,6 +417,22 @@ class Themes {
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
     ),
+
+  );
+
+  static ThemeData deepBlack = ThemeData(
+    brightness: Brightness.dark,
+    accentColor: Colors.white,
+
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      splashColor: Colors.grey,
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+    ),
+
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: Colors.red,
+    )
 
   );
 }
