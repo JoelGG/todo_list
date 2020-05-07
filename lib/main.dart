@@ -3,16 +3,36 @@ import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
+  ThemeData _currentTheme = Themes.blue;
+
   @override
   Widget build(BuildContext context) {
+    HomeScreen _homeScreen = HomeScreen(
+      theme: Themes.blue,
+      onThemeChanged: (String s) {
+        setState(() {
+          switch (s) {
+            case 'Light: Blue' :
+              _currentTheme = Themes.blue;
+              break;
+            case 'Light: Green' :
+              _currentTheme = Themes.green;
+              break;
+            default:
+          }
+        });
+      },
+    );
+
     return MaterialApp(
       title: 'Welcome to flutter',
-      theme: ThemeData(
-        primaryColor: Colors.deepOrange,
-      ),
-      home: HomeScreen(),
+      theme: _currentTheme,
+      home: _homeScreen,
     );
   }
 }
@@ -23,9 +43,10 @@ class HomeScreenState extends State<HomeScreen> {
   Widget page;
   int _pageIndex = 0;
   String _pageTitle;
+  ThemeData currentTheme = Themes.blue;
+  String themeDropdownValue = 'Light: Blue';
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _mainScreen() {
     bool displayFloating = true;
 
     switch (_pageIndex) {
@@ -69,15 +90,23 @@ class HomeScreenState extends State<HomeScreen> {
         break;
       case 2:
         page = Container(
-          child: ListView(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Text("Theme"),
-                ],
-              ),
-              
-            ],
+          child: DropdownButton<String>(
+            value: themeDropdownValue,
+            icon: Icon(Icons.arrow_downward),
+            iconSize: 24,
+            elevation: 16,
+            onChanged: (String newValue) {
+              widget.onThemeChanged(newValue);
+              themeDropdownValue = newValue;
+            },
+            items: <String>['Light: Blue', 'Light: Green', 'Dark: Deep Black']
+              .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              })
+              .toList(),
           ),
         );
         displayFloating = false;
@@ -110,17 +139,22 @@ class HomeScreenState extends State<HomeScreen> {
         currentIndex: _pageIndex,
       ),
 
-      floatingActionButton: displayFloating ? FloatingActionButton(
+      floatingActionButton: displayFloating ? FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return _dataEntry(null, null);
           }));
         },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.deepOrange,
+        label: Text("New task"),
+        icon: Icon(Icons.add),
       ) : null,
       body: page,
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _mainScreen();
   }
 
   Widget _dataEntry(int replaceAtIndex, Task defualtTask) {
@@ -170,7 +204,10 @@ class HomeScreenState extends State<HomeScreen> {
                     firstDate: DateTime(2000), 
                     lastDate: DateTime(2100),
                   );
-                  dateController.text = chosenDate.year.toString() + "/" + chosenDate.month.toString() + "/" + chosenDate.day.toString();
+                  if (chosenDate != null) {
+                    dateController.text = chosenDate.year.toString() + "/" + chosenDate.month.toString() + "/" + chosenDate.day.toString();
+                  }
+                  
 
                 },
                 child: IgnorePointer(
@@ -196,8 +233,9 @@ class HomeScreenState extends State<HomeScreen> {
                     context: context, 
                     initialTime: TimeOfDay(hour: defualtTask.date.hour, minute: defualtTask.date.minute), 
                   );
-                  timeController.text = chosenTime.hour.toString() + ":" + (chosenTime.minute.toString().length < 2 ? "0" + chosenTime.minute.toString() : chosenTime.minute.toString());
-
+                  if (chosenTime != null) {
+                    timeController.text = chosenTime.hour.toString() + ":" + (chosenTime.minute.toString().length < 2 ? "0" + chosenTime.minute.toString() : chosenTime.minute.toString());
+                  }
                 },
                 child: IgnorePointer(
                   child: new TextFormField(
@@ -310,6 +348,11 @@ class HomeScreenState extends State<HomeScreen> {
 }
 
 class HomeScreen extends StatefulWidget {
+  ThemeData theme;
+  Function onThemeChanged;
+
+  HomeScreen({this.theme, this.onThemeChanged});
+
   @override
   HomeScreenState createState() => HomeScreenState();
 }
@@ -327,6 +370,38 @@ class Category {
   String name;
 
   Category({this.icon, this.name});
+}
+
+class Themes {
+  static ThemeData green = ThemeData(
+    primaryColor: Colors.green,
+    accentColor: Colors.lightGreen,
+    backgroundColor: Colors.white,
+
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      splashColor: Colors.lightGreen,
+      backgroundColor: Colors.green,
+      foregroundColor: Colors.white,
+    ),
+
+    dialogTheme: DialogTheme(
+      titleTextStyle: TextStyle(color: Colors.green),
+    ),
+
+  );
+
+  static ThemeData blue = ThemeData(
+    primaryColor: Colors.blue,
+    accentColor: Colors.blueAccent,
+    backgroundColor: Colors.white,
+
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      splashColor: Colors.blueAccent,
+      backgroundColor: Colors.blue,
+      foregroundColor: Colors.white,
+    ),
+
+  );
 }
 
 String addZeros(String toFormat, int intendedLength) {
